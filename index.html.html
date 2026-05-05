@@ -1,0 +1,349 @@
+html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Термины ГОСТ Р 7.0.8-2025</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .game-container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 20px 25px 35px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin: 0 0 5px 0;
+            color: #1e3a5f;
+        }
+        .sub {
+            color: #4a627a;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .term-card {
+            background: #e6f0fa;
+            border-radius: 24px;
+            padding: 25px 15px;
+            text-align: center;
+            margin: 20px 0;
+            border: 1px solid #bdd4e8;
+        }
+        .term {
+            font-size: 1.9rem;
+            font-weight: bold;
+            color: #0b3b5f;
+            word-break: break-word;
+        }
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 15px 0 10px;
+        }
+        input {
+            padding: 14px 16px;
+            font-size: 1rem;
+            border: 1px solid #bdc4cc;
+            border-radius: 48px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus {
+            border-color: #2c7da0;
+            box-shadow: 0 0 0 2px rgba(44,125,160,0.2);
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        button {
+            background: #2c7da0;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        button:hover {
+            background: #1f5e7a;
+            transform: scale(0.97);
+        }
+        .btn-outline {
+            background: #eef2f7;
+            color: #1e4663;
+            border: 1px solid #bdd4e8;
+        }
+        .btn-outline:hover {
+            background: #d9e2ef;
+        }
+        .result {
+            background: #f8f9fc;
+            padding: 12px 18px;
+            border-radius: 28px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            border-left: 6px solid #2c7da0;
+        }
+        .score {
+            font-size: 1.4rem;
+            font-weight: bold;
+            background: #e9ecef;
+            display: inline-block;
+            padding: 5px 20px;
+            border-radius: 60px;
+            margin-top: 10px;
+        }
+        .repeat-list {
+            background: #fff7e5;
+            margin-top: 20px;
+            padding: 10px 15px;
+            border-radius: 24px;
+            font-size: 0.85rem;
+        }
+        hr {
+            margin: 20px 0 10px;
+        }
+        footer {
+            font-size: 0.75rem;
+            text-align: center;
+            color: #6c7e97;
+            margin-top: 20px;
+        }
+        @media (max-width: 500px) {
+            .term { font-size: 1.4rem; }
+            .game-container { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <h1>📄 Терминологический куб</h1>
+    <div class="sub">ГОСТ Р 7.0.8-2025 · делопроизводство и архивное дело</div>
+
+    <div class="term-card">
+        <div style="font-size:0.9rem; color:#2c5a7a;">🎲 Ваш термин</div>
+        <div class="term" id="termDisplay">Нажмите «Случайный термин»</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userDef" placeholder="Введите ваше определение...">
+        <div class="button-group">
+            <button id="checkBtn">✅ Проверить</button>
+            <button id="dontKnowBtn" class="btn-outline">❓ Не знаю</button>
+            <button id="newTermBtn">🎲 Случайный термин</button>
+        </div>
+    </div>
+
+    <div id="resultArea" class="result">
+        Здесь будет результат проверки и правильное определение.
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
+        <div class="score">⭐ Очки: <span id="scoreValue">0</span></div>
+        <button id="resetScoreBtn" class="btn-outline" style="padding: 5px 15px;">Сбросить счёт</button>
+    </div>
+
+    <div id="repeatArea" class="repeat-list">
+        🔁 Слова для повторения: <span id="repeatList">(пока нет)</span><br>
+        <button id="clearRepeatBtn" class="btn-outline" style="margin-top: 8px; padding: 4px 12px; font-size:0.8rem;">Очистить список повторения</button>
+    </div>
+    <footer>Правила: назовите определение термина → проверьте. При ошибке термин добавляется в «повторение». Удачи!</footer>
+</div>
+
+<script>
+    // ------------------- БАЗА ТЕРМИНОВ (из ГОСТа: пункты 1‑4,9,16,28‑40,48,49,51,56‑65) -------------------
+    const termsData = [
+        { id:1,  term:"делопроизводство", def:"Совокупность процессов работы с документами, включая документирование, документооборот, оперативное хранение и использование документов в деятельности организации." },
+        { id:2,  term:"документационное обеспечение управления (ДОУ)", def:"Деятельность (управленческая функция) по нормативному регулированию, методическому и организационному обеспечению делопроизводства, в т.ч. по формированию документального фонда организации." },
+        { id:3,  term:"управление документами", def:"Область управления, обеспечивающая жизненный цикл документов в органах государственной власти и иных государственных органах, органах местного самоуправления и организациях." },
+        { id:4,  term:"система управления документами (СУД)", def:"Система управления (менеджмента), обеспечивающая процессы жизненного цикла документов." },
+        { id:9,  term:"документ", def:"Зафиксированная на носителе информация с реквизитами и/или метаданными, позволяющими ее идентифицировать." },
+        { id:16, term:"носитель (документированной) информации", def:"Материальный объект, используемый для фиксации и хранения документированной информации." },
+        { id:28, term:"письменный документ", def:"Документ, информация которого зафиксирована знаками письменности." },
+        { id:29, term:"текстовой документ", def:"Документ, содержащий речевую информацию, зафиксированную любым типом письма." },
+        { id:30, term:"изобразительный документ", def:"Документ, визуально воспроизводящий внешний вид и/или внутреннюю структуру какого-либо объекта, а также его восприятие автором." },
+        { id:31, term:"графический документ", def:"Изобразительный документ, в котором объект отражен посредством линий, штрихов, точек, светотени, с использованием цвета при необходимости." },
+        { id:32, term:"аудиовизуальный документ", def:"Документ, содержащий изобразительную и/или звуковую информацию, созданный с помощью специальных технических средств." },
+        { id:33, term:"фотодокумент", def:"Аудиовизуальный документ, содержащий информацию в виде отдельного статичного изображения." },
+        { id:34, term:"видеодокумент", def:"Аудиовизуальный документ, созданный способом видеозаписи, содержащий изобразительную (в виде динамических образов) и звуковую информацию." },
+        { id:35, term:"кинодокумент", def:"Аудиовизуальный документ на кинопленке, содержащий изобразительную (в виде последовательно расположенных изображений) и звуковую или только изобразительную информацию." },
+        { id:36, term:"фонодокумент", def:"Аудиовизуальный документ, содержащий звуковую информацию." },
+        { id:37, term:"управленческий документ", def:"Документ, образующийся в процессе реализации функций государственного управления, местного самоуправления, управления организацией." },
+        { id:38, term:"научно-техническая документация", def:"Совокупность документов и документированной информации, фиксирующих процесс и результаты научной, научно-технической деятельности и экспериментальных разработок." },
+        { id:39, term:"документы по личному составу", def:"Архивные документы, отражающие трудовые отношения работника с работодателем." },
+        { id:40, term:"документ личного происхождения", def:"Документ, образовавшийся в процессе жизни и деятельности отдельного физического лица (лиц)." },
+        { id:48, term:"система электронного документооборота (СЭД)", def:"Информационная система, обеспечивающая жизненный цикл документов до их перехода на стадию архивного хранения или уничтожения." },
+        { id:49, term:"система хранения электронных документов (СХЭД, электронный архив)", def:"Информационная система, обеспечивающая архивное хранение электронных документов и электронных копий документов, доступ к ним и их использование." },
+        { id:51, term:"жизненный цикл документа", def:"Совокупность стадий существования документа (документированной информации), начиная с его (ее) создания до уничтожения." },
+        { id:56, term:"документирование", def:"Стадия жизненного цикла документа, на которой осуществляется запись информации с реквизитами и метаданными на носителе по установленным правилам в установленной форме." },
+        { id:57, term:"система документации", def:"Совокупность видов документов, взаимосвязанных по признакам происхождения, назначения, сферы деятельности, единых требований к их оформлению." },
+        { id:58, term:"вид документа", def:"Классификационное понятие, обозначающее принадлежность документа к определенной группе документов по признаку общности функционального назначения и обуславливающее его юридическую силу." },
+        { id:59, term:"формуляр документа", def:"Схема (план) размещения реквизитов документа." },
+        { id:60, term:"унифицированная форма документа (УФД)", def:"Нормативно установленный формуляр документа определенного вида, содержащий постоянную часть текста." },
+        { id:61, term:"примерная форма документа", def:"Унифицированная форма документа, содержащая унифицированный текст (часть текста), в который могут быть внесены дополнения и уточнения." },
+        { id:62, term:"типовая форма документа", def:"Унифицированная форма документа, содержащая унифицированный текст или часть текста, подлежащие применению без каких-либо изменений и дополнений." },
+        { id:63, term:"электронный шаблон документа", def:"Унифицированная форма документа, представленная в электронном виде." },
+        { id:64, term:"бланк документа", def:"Лист бумаги или электронный шаблон с реквизитами, идентифицирующими автора документа, расположенными в определенном порядке." },
+        { id:65, term:"оформление документа", def:"Часть процесса документирования, включающая проставление на документе реквизитов." }
+    ];
+
+    // Переменные состояния
+    let currentTermObj = null;
+    let score = 0;
+    let repeatTerms = [];    // храним объекты терминов для повторения
+
+    // DOM элементы
+    const termDisplay = document.getElementById('termDisplay');
+    const userDefInput = document.getElementById('userDef');
+    const checkBtn = document.getElementById('checkBtn');
+    const dontKnowBtn = document.getElementById('dontKnowBtn');
+    const newTermBtn = document.getElementById('newTermBtn');
+    const resultArea = document.getElementById('resultArea');
+    const scoreSpan = document.getElementById('scoreValue');
+    const repeatListSpan = document.getElementById('repeatList');
+    const resetScoreBtn = document.getElementById('resetScoreBtn');
+    const clearRepeatBtn = document.getElementById('clearRepeatBtn');
+
+    // Функция обновления счёта на экране
+    function updateScoreUI() {
+        scoreSpan.textContent = score;
+    }
+
+    // Функция отображения списка повторения
+    function updateRepeatUI() {
+        if (repeatTerms.length === 0) {
+            repeatListSpan.textContent = "(пока нет)";
+        } else {
+            const list = repeatTerms.map(t => t.term).join(", ");
+            repeatListSpan.textContent = list;
+        }
+    }
+
+    // Добавить текущий термин в повторение (если его там ещё нет)
+    function addCurrentToRepeat() {
+        if (!currentTermObj) return;
+        const already = repeatTerms.some(t => t.id === currentTermObj.id);
+        if (!already) {
+            repeatTerms.push(currentTermObj);
+            updateRepeatUI();
+        }
+    }
+
+    // Очистить список повторения
+    function clearRepeat() {
+        repeatTerms = [];
+        updateRepeatUI();
+        resultArea.innerHTML = "🔄 Список повторения очищен. Можете тренировать заново.";
+    }
+
+    // Проверка ответа пользователя
+    function checkAnswer() {
+        if (!currentTermObj) {
+            resultArea.innerHTML = "⚠️ Сначала выберите случайный термин (кнопка «Случайный термин»).";
+            return;
+        }
+        const userAnswer = userDefInput.value.trim();
+        if (userAnswer === "") {
+            resultArea.innerHTML = "✏️ Введите ваше определение перед проверкой.";
+            return;
+        }
+        const correctDef = currentTermObj.def;
+        // Простая эвристика: сравниваем строки без учёта регистра и знаков препинания (можно мягко)
+        const normalize = (s) => s.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+        const isCorrect = normalize(userAnswer) === normalize(correctDef);
+        if (isCorrect) {
+            score++;
+            updateScoreUI();
+            resultArea.innerHTML = `✅ <strong>Верно!</strong><br><span style="color:#2c7da0;">Правильное определение:</span> ${correctDef}`;
+            // Если термин был в повторении, удалим его оттуда (выучили)
+            const index = repeatTerms.findIndex(t => t.id === currentTermObj.id);
+            if (index !== -1) {
+                repeatTerms.splice(index, 1);
+                updateRepeatUI();
+                resultArea.innerHTML += `<br>🎉 Отлично! Термин удалён из списка повторения.`;
+            }
+        } else {
+            resultArea.innerHTML = `❌ <strong>Неверно.</strong><br>📖 <strong>Правильное определение:</strong> ${correctDef}<br>➕ Термин добавлен в «Слова для повторения».`;
+            addCurrentToRepeat();
+        }
+        userDefInput.value = ''; // очистить поле для удобства
+        userDefInput.focus();
+    }
+
+    // Не знаю – показываем ответ, добавляем в повторение
+    function dontKnow() {
+        if (!currentTermObj) {
+            resultArea.innerHTML = "⚠️ Сначала выберите термин.";
+            return;
+        }
+        resultArea.innerHTML = `📘 <strong>Правильное определение:</strong> ${currentTermObj.def}<br>➕ Термин добавлен в список повторения.`;
+        addCurrentToRepeat();
+        userDefInput.value = '';
+    }
+
+    // Выбрать случайный термин (можно как из всех, так и принудительно из повторения? Оставим из всех, но можно модифицировать)
+    function getRandomTerm() {
+        // Если список повторения не пустой, с вероятностью 50% берём из него (для активного заучивания)
+        if (repeatTerms.length > 0 && Math.random() < 0.5) {
+            const randomIndex = Math.floor(Math.random() * repeatTerms.length);
+            return repeatTerms[randomIndex];
+        } else {
+            const randomIndex = Math.floor(Math.random() * termsData.length);
+            return termsData[randomIndex];
+        }
+    }
+
+    function loadNewRandomTerm() {
+        currentTermObj = getRandomTerm();
+        termDisplay.textContent = currentTermObj.term;
+        userDefInput.value = '';
+        resultArea.innerHTML = "🎯 Введите определение термина и нажмите «Проверить».";
+    }
+
+    // Сброс счёта
+    function resetScore() {
+        score = 0;
+        updateScoreUI();
+        resultArea.innerHTML = "⭐ Счёт сброшен. Продолжайте игру!";
+    }
+
+    // Инициализация и обработчики
+    function init() {
+        loadNewRandomTerm();
+        checkBtn.addEventListener('click', checkAnswer);
+        dontKnowBtn.addEventListener('click', dontKnow);
+        newTermBtn.addEventListener('click', loadNewRandomTerm);
+        resetScoreBtn.addEventListener('click', resetScore);
+        clearRepeatBtn.addEventListener('click', clearRepeat);
+        updateScoreUI();
+        updateRepeatUI();
+    }
+
+    init();
+</script>
+</body>
+</html>
